@@ -1,0 +1,1 @@
+{"version":3,"file":"principal.completion.js","sourceRoot":"","sources":["principal.completion.ts"],"names":[],"mappings":";;;AAEA,sEAAqE;AAE9D,MAAM,iBAAiB,GAAG,CAAC,IAAY,EAAE,QAAyB,EAAmB,EAAE;IAC5F,IAAI,IAAI,CAAC,SAAS,CAAC,CAAC,EAAE,QAAQ,CAAC,SAAS,CAAC,CAAC,QAAQ,CAAC,GAAG,CAAC,EAAE,CAAC;QACxD,OAAO,IAAA,6CAAsB,GAAE,CAAC;IAClC,CAAC;AACH,CAAC,CAAA;AAJY,QAAA,iBAAiB,qBAI7B"}
