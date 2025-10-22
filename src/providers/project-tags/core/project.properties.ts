@@ -11,13 +11,13 @@ type ProjectPropertyCompletionItem = vscode.CompletionItem;
  */
 export const getProjectProperties = (): ProjectPropertyCompletionItem[] => {
   const sdkItem = new vscode.CompletionItem('Sdk', vscode.CompletionItemKind.Property);
-  sdkItem.insertText = 'Sdk="';
+  sdkItem.insertText = new vscode.SnippetString('Sdk="$0"');
   sdkItem.documentation = 'Specifies the SDK to use for the project.';
   const toolVersionItem = new vscode.CompletionItem('ToolsVersion', vscode.CompletionItemKind.Property);
-  toolVersionItem.insertText = 'ToolsVersion="';
+  toolVersionItem.insertText = new vscode.SnippetString('ToolsVersion="$0"');
   toolVersionItem.documentation = 'Specifies the ToolsVersion for the project.';
   const defaultTargetsItem = new vscode.CompletionItem('DefaultTargets', vscode.CompletionItemKind.Property);
-  defaultTargetsItem.insertText = 'DefaultTargets="';
+  defaultTargetsItem.insertText = new vscode.SnippetString('DefaultTargets="$0"');
   defaultTargetsItem.documentation = 'Specifies the default targets to build for the project.';
   return [sdkItem, toolVersionItem, defaultTargetsItem];
 }
