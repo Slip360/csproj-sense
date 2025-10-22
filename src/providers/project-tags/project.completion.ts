@@ -11,28 +11,19 @@ import { getProjectProperties } from '@project-tags/core/project.properties';
  */
 const isCursorInsideProjectTag = (line: string, position: vscode.Position): boolean => {
   const linePrefix = line.substring(0, position.character);
-
-  // Must be inside the opening tag
   const isInProjectTagRegex = /<Project\s[^>]*$/;
   if (!isInProjectTagRegex.test(linePrefix)) return false;
-
-  // Check if cursor is inside any quoted attribute value
   const quotePairs: { start: number; end: number }[] = [];
   const quoteRegex = /"[^"]*"/g;
   let match: RegExpExecArray | null;
-
   while ((match = quoteRegex.exec(line)) !== null) {
     const start = match.index;
     const end = start + match[0].length;
     quotePairs.push({ start, end });
   }
-
   for (const { start, end } of quotePairs) {
-    if (position.character > start && position.character < end) {
-      return false; // Cursor is inside an attribute value
-    }
+    if (position.character > start && position.character < end) return false;
   }
-
   return true;
 }
 
