@@ -37,6 +37,14 @@ exports.activate = activate;
 const vscode = __importStar(require("vscode"));
 const principal_completion_1 = require("@principal-tags/principal.completion");
 const project_completion_1 = require("@project-tags/project.completion");
+/**
+ * Characters that trigger completion.
+ */
+const TRIGGER_CHARACTERS = ['<', ' ', '"', "."];
+/**
+ * Activate the extension.
+ * @param context Context of extension.
+ */
 function activate(context) {
     const provider = vscode.languages.registerCompletionItemProvider({
         language: 'xml',
@@ -54,7 +62,7 @@ function activate(context) {
                 return projectResults;
             return undefined;
         }
-    }, '<', ' ');
+    }, ...TRIGGER_CHARACTERS);
     context.subscriptions.push(provider);
 }
 //# sourceMappingURL=extension.js.map

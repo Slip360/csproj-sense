@@ -37,22 +37,81 @@ exports.activateProject = void 0;
 const vscode = __importStar(require("vscode"));
 const sdk_values_1 = require("@project-tags/core/sdk.values");
 const project_properties_1 = require("@project-tags/core/project.properties");
-const isInSdkRegex = /Sdk\s*=\s*"[^"]*$/;
-const isInProjectTagRegex = /<Project\s[^>]*$/;
-const sdkValuesCompletions = sdk_values_1.SDK_VALUES.map(sdk => {
-    const item = new vscode.CompletionItem(sdk, vscode.CompletionItemKind.Value);
-    item.insertText = sdk + '"';
-    item.documentation = `SDK: ${sdk}`;
-    return item;
-});
-const isInsideProjectTag = (line, position) => {
+/**
+ * Checks if the cursor is inside a Project tag (not in attributes).
+ * @param line Line to validate.
+ * @param position Position of de character.
+ * @returns true if is in the project tag otherwise false.
+ */
+const isCursorInsideProjectTag = (line, position) => {
     const linePrefix = line.substring(0, position.character);
-    return isInProjectTagRegex.test(linePrefix);
-};
-const activateProject = (line, position) => {
-    if (isInsideProjectTag(line, position)) {
-        return (0, project_properties_1.getProjectProperties)();
+    // Must be inside the opening tag
+    const isInProjectTagRegex = /<Project\s[^>]*$/;
+    if (!isInProjectTagRegex.test(linePrefix))
+        return false;
+    // Check if cursor is inside any quoted attribute value
+    const quotePairs = [];
+    const quoteRegex = /"[^"]*"/g;
+    let match;
+    while ((match = quoteRegex.exec(line)) !== null) {
+        const start = match.index;
+        const end = start + match[0].length;
+        quotePairs.push({ start, end });
     }
+    for (const { start, end } of quotePairs) {
+        if (position.character > start && position.character < end) {
+            return false; // Cursor is inside an attribute value
+        }
+    }
+    return true;
+};
+/**
+ * Checks if the cursor is inside the quotes of a specific attribute.
+ * @param line Line to validate.
+ * @param position Position of the character.
+ * @param attributeName Name of the attribute.
+ * @returns true if is in the quotes of the attribute.
+ */
+const isCursorInsideAttributeQuotes = (line, position, attributeName) => {
+    const regex = new RegExp(`${attributeName}\\s*=\\s*"([^"]*)"`, 'g');
+    let match;
+    while ((match = regex.exec(line)) !== null) {
+        const fullMatchText = match[0]; // e.g., Sdk="Microsoft.NET.Sdk"
+        const matchStart = match.index;
+        const quoteStartOffset = fullMatchText.indexOf('"');
+        const quoteEndOffset = fullMatchText.lastIndexOf('"');
+        const startIndex = matchStart + quoteStartOffset + 1;
+        const endIndex = matchStart + quoteEndOffset + 1;
+        console.log({
+            quoteStartOffset,
+            quoteEndOffset,
+            startIndex,
+            endIndex,
+            positionChar: position.character
+        });
+        if (startIndex <= position.character && position.character <= endIndex) {
+            return true;
+        }
+    }
+    return false;
+};
+/**
+ * Activates project tag completions.
+ * @param line Line to validate.
+ * @param position Position of the character.
+ * @returns Results of activation.
+ */
+const activateProject = (line, position) => {
+    if (isCursorInsideAttributeQuotes(line, position, 'Sdk')) {
+        return sdk_values_1.SDK_VALUES.map(sdk => {
+            const item = new vscode.CompletionItem(sdk, vscode.CompletionItemKind.Value);
+            item.insertText = sdk;
+            item.documentation = `SDK: ${sdk}`;
+            return item;
+        });
+    }
+    if (isCursorInsideProjectTag(line, position))
+        return (0, project_properties_1.getProjectProperties)();
     return undefined;
 };
 exports.activateProject = activateProject;

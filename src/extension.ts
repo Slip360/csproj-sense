@@ -2,12 +2,21 @@ import * as vscode from 'vscode';
 import { activatePrincipal } from '@principal-tags/principal.completion';
 import { activateProject } from '@project-tags/project.completion';
 
+/**
+ * Characters that trigger completion.
+ */
+const TRIGGER_CHARACTERS = ['<', ' ', '"', "."];
+
+/**
+ * Activate the extension.
+ * @param context Context of extension.
+ */
 export function activate(context: vscode.ExtensionContext) {
   const provider = vscode.languages.registerCompletionItemProvider({
 	language: 'xml',
 	scheme: 'file'
   }, {
-	provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+    provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
 	  if (document.fileName.endsWith('.csproj') === false) return undefined;
 	  const line = document.lineAt(position).text;
 	  const principalResults = activatePrincipal(line, position);
@@ -16,6 +25,6 @@ export function activate(context: vscode.ExtensionContext) {
 	  if (projectResults !== undefined) return projectResults;
 	  return undefined;
 	}
-  }, '<', ' ');
+  }, ...TRIGGER_CHARACTERS);
   context.subscriptions.push(provider);
 }
